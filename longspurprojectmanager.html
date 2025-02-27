@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Longspur Project Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --spacing-1: 2px;  /* Fibonacci: 2 */
+      --spacing-2: 5px;  /* Fibonacci: 5 */
+      --spacing-3: 8px;  /* Fibonacci: 8 */
+      --spacing-5: 13px; /* Fibonacci: 13 */
+      --spacing-8: 21px; /* Fibonacci: 21 */
+      --spacing-13: 34px; /* Fibonacci: 34 */
+      --spacing-21: 55px; /* Fibonacci: 55 */
+      --font-size-1: 13px; /* Fibonacci: 13 */
+      --font-size-2: 21px; /* Fibonacci: 21 */
+      --font-size-3: 34px; /* Fibonacci: 34 */
+      --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --shadow-2: 0 5px 13px rgba(0, 0, 0, 0.15);
+      --shadow-3: 0 13px 34px rgba(0, 0, 0, 0.25);
+      --color-primary: #63B3ED;
+      --color-primary-hover: #90CDF4;
+      --color-bg-light: #EDF2F7;
+      --color-bg-dark: #2D3748;
+      --color-placeholder: #A0AEC0;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, var(--color-bg-dark), #1A202C);
+      color: #E2E8F0;
+      line-height: 1.618;
+      min-height: 100vh;
+      font-size: var(--font-size-1);
+      transition: background 0.3s, color 0.3s;
+    }
+    body.light-mode {
+      background: linear-gradient(135deg, var(--color-bg-light), #fff);
+      color: #1A202C;
+    }
+    h1 {
+      text-align: center;
+      color: var(--color-primary);
+      font-size: var(--font-size-3);
+      font-weight: 700;
+      padding: var(--spacing-8) 0;
+      background: rgba(45, 55, 72, 0.95);
+      box-shadow: var(--shadow-1);
+    }
+    body.light-mode h1 {
+      color: #2B6CB0;
+      background: rgba(255, 255, 255, 0.95);
+    }
+    h2 {
+      color: var(--color-primary);
+      font-size: var(--font-size-2);
+      font-weight: 600;
+      margin-bottom: var(--spacing-5);
+    }
+    body.light-mode h2 {
+      color: #2B6CB0;
+    }
+    .section {
+      background: var(--color-bg-dark);
+      border-radius: var(--spacing-5);
+      padding: var(--spacing-13);
+      margin: var(--spacing-8) auto;
+      max-width: 1200px;
+      box-shadow: var(--shadow-2);
+    }
+    body.light-mode .section {
+      background: #fff;
+    }
+    .control-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-5);
+      align-items: center;
+      margin-bottom: var(--spacing-8);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--color-bg-dark);
+      border-radius: var(--spacing-3);
+      overflow: hidden;
+    }
+    body.light-mode table {
+      background: #fff;
+    }
+    th, td {
+      padding: var(--spacing-5) var(--spacing-8);
+      text-align: left;
+      border-bottom: 1px solid #4A5568;
+    }
+    tbody th, tbody td {
+      padding: var(--spacing-8);
+    }
+    body.light-mode th, body.light-mode td {
+      border-bottom: 1px solid #E2E8F0;
+    }
+    th {
+      background: #4A90E2;
+      color: #fff;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: var(--font-size-1);
+    }
+    body.light-mode th {
+      background: #2B6CB0;
+    }
+    th[data-sort] {
+      cursor: pointer;
+    }
+    th[data-sort]:hover {
+      background: var(--color-primary-hover);
+    }
+    body.light-mode th[data-sort]:hover {
+      background: #4299E1;
+    }
+    th[data-sort]::after {
+      content: '\f0dc'; /* Font Awesome sort icon */
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      margin-left: var(--spacing-2);
+      font-size: 12px;
+    }
+    tr:nth-child(even) {
+      background: #3A4657;
+    }
+    body.light-mode tr:nth-child(even) {
+      background: #F7FAFC;
+    }
+    tr:hover {
+      background: #4A5568;
+      transition: background 0.2s ease;
+    }
+    body.light-mode tr:hover {
+      background: var(--color-bg-light);
+    }
+    .button {
+      padding: var(--spacing-3) var(--spacing-8);
+      border: none;
+      border-radius: var(--spacing-2);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: var(--font-size-1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+    }
+    .button i {
+      margin-right: var(--spacing-2);
+    }
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-1);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #4A90E2, var(--color-primary));
+      color: #fff;
+    }
+    body.light-mode .btn-primary {
+      background: linear-gradient(135deg, #2B6CB0, #4299E1);
+    }
+    .btn-success {
+      background: linear-gradient(135deg, #48BB78, #68D391);
+      color: #fff;
+    }
+    body.light-mode .btn-success {
+      background: linear-gradient(135deg, #38A169, #68D391);
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #F56565, #FC8181);
+      color: #fff;
+    }
+    body.light-mode .btn-danger {
+      background: linear-gradient(135deg, #E53E3E, #F56565);
+    }
+    .btn-warning {
+      background: linear-gradient(135deg, #ECC94B, #F6E05E);
+      color: #fff;
+    }
+    body.light-mode .btn-warning {
+      background: linear-gradient(135deg, #D69E2E, #F6E05E);
+    }
+    .btn-small {
+      padding: var(--spacing-2) var(--spacing-5);
+      margin-bottom: var(--spacing-3);
+      display: inline-flex;
+    }
+    .btn-small:last-child {
+      margin-bottom: 0;
+    }
+    select, input, textarea {
+      padding: var(--spacing-3);
+      border: 1px solid #4A5568;
+      border-radius: var(--spacing-2);
+      font-size: var(--font-size-1);
+      width: 100%;
+      background: #3A4657;
+      color: #E2E8F0;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    body.light-mode select, body.light-mode input, body.light-mode textarea {
+      border: 1px solid #D6E0E8;
+      background: #fff;
+      color: #1A202C;
+    }
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--color-primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
+    }
+    body.light-mode select:focus, body.light-mode input:focus, body.light-mode textarea:focus {
+      border-color: #2B6CB0;
+      box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.3);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 89px;
+    }
+    .form-group {
+      margin-bottom: var(--spacing-8);
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: var(--spacing-3);
+      font-weight: 500;
+    }
+    #batch-mode-container, #edit-batch-mode-container {
+      display: flex;
+      align-items: center;
+      padding: var(--spacing-5) 0;
+      margin-bottom: var(--spacing-8);
+    }
+    #batch-mode-container label, #edit-batch-mode-container label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      cursor: pointer;
+    }
+    #batch-mode-container input[type="checkbox"], #edit-batch-mode-container input[type="checkbox"] {
+      width: var(--spacing-8);
+      height: var(--spacing-8);
+      cursor: pointer;
+    }
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--color-bg-dark);
+      padding: var(--spacing-13);
+      border-radius: var(--spacing-5);
+      box-shadow: var(--shadow-3);
+      z-index: 1000;
+      width: 90%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      display: none;
+    }
+    body.light-mode .modal {
+      background: #fff;
+    }
+    .modal.show {
+      display: block;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 999;
+      display: none;
+    }
+    .overlay.show {
+      display: block;
+    }
+    .hidden { display: none; }
+    #project-display {
+      padding: var(--spacing-5);
+      background: rgba(45, 55, 72, 0.9);
+      border-radius: var(--spacing-3);
+      color: var(--color-primary);
+      font-weight: 600;
+      margin-top: var(--spacing-5);
+      text-align: center;
+      box-shadow: var(--shadow-1);
+    }
+    body.light-mode #project-display {
+      background: rgba(255, 255, 255, 0.9);
+      color: #2B6CB0;
+    }
+    .status-dot {
+      width: var(--spacing-5);
+      height: var(--spacing-5);
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: var(--spacing-3);
+    }
+    .active { background: #38A169; }
+    .inactive { background: #A0AEC0; }
+    .batch-project-field {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-5);
+      margin-bottom: var(--spacing-5);
+    }
+    .remove-project-btn {
+      background: #E53E3E;
+      padding: var(--spacing-2) var(--spacing-5);
+    }
+    a {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+    body.light-mode a {
+      color: #2B6CB0;
+    }
+    a:hover {
+      text-decoration: underline;
+      color: #90CDF4;
+    }
+    body.light-mode a:hover {
+      color: #2C5282;
+    }
+    .mode-toggle {
+      position: fixed;
+      top: var(--spacing-8);
+      right: var(--spacing-8);
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    .mode-toggle input {
+      display: none;
+    }
+    .mode-toggle .slider {
+      width: 34px;
+      height: 21px;
+      background: #4A5568;
+      border-radius: 34px;
+      position: relative;
+      transition: background 0.3s;
+    }
+    .mode-toggle .slider:before {
+      content: '';
+      position: absolute;
+      width: 13px;
+      height: 13px;
+      left: 5px;
+      top: 4px;
+      background: #E2E8F0;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+    .mode-toggle input:checked + .slider {
+      background: var(--color-primary);
+    }
+    .mode-toggle input:checked + .slider:before {
+      transform: translateX(13px);
+    }
+    .mode-toggle .icon {
+      margin-left: var(--spacing-3);
+      font-size: var(--font-size-2);
+    }
+    dl {
+      display: grid;
+      grid-template-columns: 1fr 1.618fr;
+      gap: var(--spacing-3) var(--spacing-5);
+      margin-bottom: var(--spacing-8);
+    }
+    dt {
+      font-weight: 600;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+    }
+    body.light-mode dt {
+      color: #2B6CB0;
+    }
+    dt i {
+      margin-right: var(--spacing-3);
+    }
+    dd {
+      margin: 0;
+    }
+    dd[contenteditable="true"] {
+      cursor: text;
+      padding: var(--spacing-2);
+      transition: background 0.2s ease, border 0.2s ease;
+    }
+    dd[contenteditable="true"]:empty:before {
+      content: 'N/A';
+      color: var(--color-placeholder);
+    }
+    dd[contenteditable="true"]:hover {
+      background: #3A4657;
+    }
+    body.light-mode dd[contenteditable="true"]:hover {
+      background: #F7FAFC;
+    }
+    dd[contenteditable="true"]:focus {
+      background: #3A4657;
+      border: 1px solid var(--color-primary);
+      outline: none;
+    }
+    body.light-mode dd[contenteditable="true"]:focus {
+      background: #F7FAFC;
+      border: 1px solid #2B6CB0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Longspur Project Manager</h1>
+  <label class="mode-toggle">
+    <input type="checkbox" id="mode-toggle">
+    <span class="slider"></span>
+    <i class="icon fas fa-sun"></i>
+  </label>
+
+  <div class="section">
+    <h2>Clients</h2>
+    <div class="control-group">
+      <button id="add-client-btn" class="button btn-success"><i class="fas fa-plus"></i> Add Client</button>
+      <input type="text" id="search-clients" placeholder="Search clients...">
+    </div>
+    <table id="client-table">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th data-sort="name">Name</th>
+          <th data-sort="contact">Contact</th>
+          <th data-sort="time">Total Time</th>
+          <th data-sort="cost">Total Cost</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="client-list"></tbody>
+    </table>
+    <div id="client-form" class="modal">
+      <h2>Add Client</h2>
+      <div class="form-group">
+        <label for="client-name"><i class="fas fa-user"></i> Client Name</label>
+        <input type="text" id="client-name" placeholder="Enter client name">
+      </div>
+      <div class="form-group">
+        <label for="client-contact"><i class="fas fa-envelope"></i> Contact Email</label>
+        <input type="email" id="client-contact" placeholder="Enter contact email">
+      </div>
+      <div class="form-group">
+        <label for="client-address"><i class="fas fa-map-marker-alt"></i> Address</label>
+        <textarea id="client-address" placeholder="Enter address"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="client-phone"><i class="fas fa-phone"></i> Phone Number</label>
+        <input type="tel" id="client-phone" placeholder="Enter phone number">
+      </div>
+      <div class="form-group">
+        <label for="client-notes"><i class="fas fa-sticky-note"></i> Notes</label>
+        <textarea id="client-notes" placeholder="Enter notes"></textarea>
+      </div>
+      <div class="control-group">
+        <button id="save-client" class="button btn-primary">Save</button>
+        <button id="cancel-client" class="button btn-danger">Cancel</button>
+      </div>
+    </div>
+    <div id="client-details" class="modal">
+      <h2 id="client-details-title">Client Details</h2>
+      <dl>
+        <dt><i class="fas fa-user"></i> Name</dt><dd id="client-details-name" contenteditable="true"></dd>
+        <dt><i class="fas fa-envelope"></i> Contact</dt><dd id="client-details-contact" contenteditable="true"></dd>
+        <dt><i class="fas fa-map-marker-alt"></i> Address</dt><dd id="client-details-address" contenteditable="true"></dd>
+        <dt><i class="fas fa-phone"></i> Phone</dt><dd id="client-details-phone" contenteditable="true"></dd>
+        <dt><i class="fas fa-sticky-note"></i> Notes</dt><dd id="client-details-notes" contenteditable="true"></dd>
+        <dt><i class="fas fa-clock"></i> Total Time</dt><dd id="client-details-time"></dd>
+        <dt><i class="fas fa-dollar-sign"></i> Total Cost</dt><dd id="client-details-cost"></dd>
+        <dt><i class="fas fa-calculator"></i> Avg Hourly Rate</dt><dd id="client-details-hourly-rate"></dd>
+        <dt><i class="fas fa-tasks"></i> Total Projects</dt><dd id="client-details-projects-count"></dd>
+      </dl>
+      <div class="control-group">
+        <button id="save-client-details" class="button btn-primary"><i class="fas fa-save"></i> Save</button>
+        <button id="close-client-details" class="button btn-danger"><i class="fas fa-times"></i> Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Project Management</h2>
+    <div class="control-group">
+      <select id="client-select"><option value="">Select Client</option></select>
+      <button id="start-btn" class="button btn-primary"><i class="fas fa-play"></i> Start Time</button>
+      <button id="pause-btn" class="button btn-warning"><i class="fas fa-pause"></i> Pause</button>
+      <button id="stop-btn" class="button btn-danger"><i class="fas fa-stop"></i> Stop</button>
+      <button id="add-cost-btn" class="button btn-success"><i class="fas fa-dollar-sign"></i> Add Cost</button>
+    </div>
+    <div id="project-display" class="hidden"></div>
+  </div>
+
+  <div class="overlay" id="project-modal-overlay"></div>
+  <div class="modal" id="project-modal">
+    <h2 id="modal-title">Add Project</h2>
+    <div class="form-group">
+      <label for="project-type"><i class="fas fa-folder"></i> Project Type</label>
+      <select id="project-type">
+        <option value="Title & Thumbnail Design">Title & Thumbnail Design</option>
+        <option value="Short-Form Editing">Short-Form Editing</option>
+        <option value="General Work">General Work</option>
+      </select>
+    </div>
+    <div class="form-group" id="batch-mode-container">
+      <label><input type="checkbox" id="batch-mode"> <i class="fas fa-layer-group"></i> Batch Mode</label>
+    </div>
+    <div class="form-group" id="single-project">
+      <label for="project-url"><i class="fas fa-link"></i> YouTube Video URL</label>
+      <input type="url" id="project-url" placeholder="e.g., https://youtube.com/watch?v=abc123">
+      <label for="single-cost"><i class="fas fa-dollar-sign"></i> Cost ($)</label>
+      <input type="number" id="single-cost" placeholder="e.g., 50.00" step="0.01" min="0">
+    </div>
+    <div id="general-details">
+      <div class="form-group">
+        <label for="general-task-desc"><i class="fas fa-tasks"></i> Task Description</label>
+        <textarea id="general-task-desc" placeholder="e.g., Client meeting, research"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="general-cost"><i class="fas fa-dollar-sign"></i> Cost ($)</label>
+        <input type="number" id="general-cost" placeholder="e.g., 50.00" step="0.01" min="0">
+      </div>
+    </div>
+    <div class="form-group" id="batch-projects">
+      <div id="batch-project-container">
+        <div class="batch-project-field">
+          <input type="url" class="batch-project-url" placeholder="e.g., https://youtube.com/watch?v=abc123">
+          <input type="number" class="batch-project-cost" placeholder="Cost ($)" step="0.01" min="0">
+          <button class="button btn-danger remove-project-btn"><i class="fas fa-trash"></i> Remove</button>
+        </div>
+      </div>
+      <button id="add-project-btn" class="button btn-success"><i class="fas fa-plus"></i> Add Project</button>
+    </div>
+    <div class="control-group">
+      <button id="start-session-btn" class="button btn-primary"><i class="fas fa-play"></i> Start Tracking</button>
+      <button id="save-cost-btn" class="button btn-success"><i class="fas fa-save"></i> Save Cost Only</button>
+      <button id="cancel-session-btn" class="button btn-danger"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="edit-modal-overlay"></div>
+  <div class="modal" id="edit-modal">
+    <h2>Edit Project</h2>
+    <div class="form-group">
+      <label for="edit-project-type"><i class="fas fa-folder"></i> Project Type</label>
+      <select id="edit-project-type">
+        <option value="Title & Thumbnail Design">Title & Thumbnail Design</option>
+        <option value="Short-Form Editing">Short-Form Editing</option>
+        <option value="General Work">General Work</option>
+      </select>
+    </div>
+    <div class="form-group" id="edit-batch-mode-container">
+      <label><input type="checkbox" id="edit-batch-mode"> <i class="fas fa-layer-group"></i> Convert to Batch Mode</label>
+    </div>
+    <div id="edit-video-url">
+      <div class="form-group">
+        <label for="edit-project-url"><i class="fas fa-link"></i> YouTube Video URL</label>
+        <input type="url" id="edit-project-url" placeholder="e.g., https://youtube.com/watch?v=abc123">
+      </div>
+      <div class="form-group">
+        <label for="edit-cost"><i class="fas fa-dollar-sign"></i> Cost ($)</label>
+        <input type="number" id="edit-cost" placeholder="e.g., 50.00" step="0.01" min="0">
+      </div>
+    </div>
+    <div class="form-group" id="edit-batch-projects">
+      <div id="edit-batch-project-container"></div>
+      <button id="edit-add-project-btn" class="button btn-success"><i class="fas fa-plus"></i> Add Project</button>
+    </div>
+    <div id="edit-general-details">
+      <div class="form-group">
+        <label for="edit-general-task-desc"><i class="fas fa-tasks"></i> Task Description</label>
+        <textarea id="edit-general-task-desc" placeholder="e.g., Client meeting, research"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="edit-general-cost"><i class="fas fa-dollar-sign"></i> Cost ($)</label>
+        <input type="number" id="edit-general-cost" placeholder="e.g., 50.00" step="0.01" min="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="edit-start-time"><i class="fas fa-clock"></i> Start Time</label>
+      <input type="datetime-local" id="edit-start-time">
+    </div>
+    <div class="form-group">
+      <label for="edit-end-time"><i class="fas fa-clock"></i> End Time</label>
+      <input type="datetime-local" id="edit-end-time">
+    </div>
+    <div class="control-group">
+      <button id="save-edit-btn" class="button btn-primary"><i class="fas fa-save"></i> Save</button>
+      <button id="cancel-edit-btn" class="button btn-danger"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="client-modal-overlay"></div>
+
+  <div class="section">
+    <h2>Project History</h2>
+    <div class="control-group">
+      <select id="history-select"><option value="">All Clients</option></select>
+      <input type="text" id="history-search" placeholder="Search projects...">
+      <select id="history-filter">
+        <option value="">All Types</option>
+        <option value="Title & Thumbnail Design">Title & Thumbnail Design</option>
+        <option value="Short-Form Editing">Short-Form Editing</option>
+        <option value="General Work">General Work</option>
+        <option value="Batch">Batch Only</option>
+      </select>
+      <button id="export-btn" class="button btn-primary"><i class="fas fa-file-export"></i> Export CSV</button>
+      <button id="add-batch-btn" class="button btn-success"><i class="fas fa-plus"></i> Add Batch Project</button>
+      <button id="clear-history-btn" class="button btn-danger"><i class="fas fa-trash"></i> Clear All History</button>
+    </div>
+    <table id="history-table">
+      <thead>
+        <tr>
+          <th data-sort="type">Project Type</th>
+          <th data-sort="project">YouTube Video URL(s) / Task Description</th>
+          <th data-sort="date">Date</th>
+          <th data-sort="time">Time</th>
+          <th data-sort="cost">Cost ($)</th>
+          <th data-sort="hourly">Hourly Rate ($/hr)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="history-list"></tbody>
+    </table>
+  </div>
+
+  <script>
+    class ProjectManager {
+      constructor() {
+        this.clients = this.loadClients();
+        this.currentSession = null;
+        this.timerInterval = null;
+        this.state = {
+          paused: false,
+          startTime: 0,
+          pausedDuration: 0,
+          editingProjectIndex: null,
+          editingClientId: null,
+          clientSort: { field: null, direction: 1 },
+          historySort: { field: null, direction: 1 },
+          darkMode: localStorage.getItem('darkMode') !== 'false'
+        };
+        this.setupEventListeners();
+        this.renderAll();
+        this.applyDarkMode();
+      }
+
+      loadClients() {
+        return JSON.parse(localStorage.getItem('projectManagerClients') || '[]');
+      }
+
+      saveClients() {
+        localStorage.setItem('projectManagerClients', JSON.stringify(this.clients));
+      }
+
+      setupEventListeners() {
+        const events = [
+          ['add-client-btn', 'click', () => this.showClientForm()],
+          ['save-client', 'click', () => this.saveClient()],
+          ['cancel-client', 'click', () => this.hideClientForm()],
+          ['start-btn', 'click', () => this.showProjectModal()],
+          ['pause-btn', 'click', () => this.togglePause()],
+          ['stop-btn', 'click', () => this.stopTimer()],
+          ['add-cost-btn', 'click', () => this.showProjectModal(true)],
+          ['start-session-btn', 'click', () => this.startTimer()],
+          ['save-cost-btn', 'click', () => this.saveCostOnly()],
+          ['cancel-session-btn', 'click', () => this.hideProjectModal()],
+          ['history-select', 'change', () => this.renderHistory()],
+          ['export-btn', 'click', () => this.exportCSV()],
+          ['add-batch-btn', 'click', () => this.showBatchProjectModal()],
+          ['clear-history-btn', 'click', () => this.clearHistory()],
+          ['search-clients', 'input', e => this.renderClients(e.target.value)],
+          ['history-search', 'input', () => this.renderHistory()],
+          ['history-filter', 'change', () => this.renderHistory()],
+          ['project-type', 'change', e => this.toggleProjectDetails(e.target.value)],
+          ['edit-project-type', 'change', e => this.toggleEditProjectDetails(e.target.value)],
+          ['batch-mode', 'change', e => this.toggleBatchMode(e.target.checked)],
+          ['edit-batch-mode', 'change', e => this.toggleEditBatchMode(e.target.checked)],
+          ['add-project-btn', 'click', () => this.addProjectField()],
+          ['edit-add-project-btn', 'click', () => this.addEditProjectField()],
+          ['save-edit-btn', 'click', () => this.saveEditedProject()],
+          ['cancel-edit-btn', 'click', () => this.hideEditModal()],
+          ['mode-toggle', 'change', () => this.toggleDarkMode()],
+          ['close-client-details', 'click', () => this.hideClientDetails()],
+          ['save-client-details', 'click', () => this.saveClientDetails()]
+        ];
+        events.forEach(([id, event, handler]) => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener(event, handler);
+        });
+        document.querySelectorAll('#history-table th[data-sort]').forEach(th => 
+          th.addEventListener('click', () => this.sortHistory(th.dataset.sort))
+        );
+        document.querySelectorAll('#client-table th[data-sort]').forEach(th => 
+          th.addEventListener('click', () => this.sortClients(th.dataset.sort))
+        );
+      }
+
+      showModal(modalId, overlayId) {
+        const modal = document.getElementById(modalId);
+        const overlay = document.getElementById(overlayId);
+        if (modal && overlay) {
+          modal.style.display = 'block';
+          overlay.style.display = 'block';
+          modal.classList.add('show');
+          overlay.classList.add('show');
+        }
+      }
+
+      hideModal(modalId, overlayId) {
+        const modal = document.getElementById(modalId);
+        const overlay = document.getElementById(overlayId);
+        if (modal && overlay) {
+          modal.classList.remove('show');
+          overlay.classList.remove('show');
+          setTimeout(() => {
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+          }, 300);
+        }
+      }
+
+      renderAll() {
+        this.renderClients();
+        this.renderSelects();
+        this.renderHistory();
+        this.updateProjectDisplay();
+      }
+
+      sortClients(field) {
+        this.state.clientSort.field = this.state.clientSort.field === field ? field : field;
+        this.state.clientSort.direction = this.state.clientSort.field === field ? this.state.clientSort.direction * -1 : 1;
+        this.renderClients(document.getElementById('search-clients').value);
+      }
+
+      renderClients(searchTerm = '') {
+        const tbody = document.getElementById('client-list');
+        tbody.innerHTML = '';
+        let filteredClients = this.clients.filter(client => 
+          client.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        if (this.state.clientSort.field) {
+          filteredClients.sort((a, b) => {
+            const field = this.state.clientSort.field;
+            const direction = this.state.clientSort.direction;
+            const valueMap = {
+              name: c => c.name,
+              contact: c => c.contact || '',
+              time: c => this.getTotalTime(c),
+              cost: c => this.getTotalCost(c)
+            };
+            const aValue = valueMap[field](a);
+            const bValue = valueMap[field](b);
+            return direction * (aValue > bValue ? 1 : aValue < bValue ? -1 : 0);
+          });
+        }
+
+        tbody.innerHTML = filteredClients.map(client => {
+          const isActive = this.currentSession?.clientId === client.id;
+          return `
+            <tr>
+              <td><span class="status-dot ${isActive ? 'active' : 'inactive'}"></span></td>
+              <td>${client.name}</td>
+              <td>${client.contact || ''}</td>
+              <td>${this.formatTime(this.getTotalTime(client), true)}</td>
+              <td>$${this.formatCost(this.getTotalCost(client))}</td>
+              <td>
+                <button class="button btn-primary btn-small client-details-btn" data-id="${client.id}"><i class="fas fa-info-circle"></i> Details</button>
+                <button class="button btn-danger btn-small client-delete-btn" data-id="${client.id}"><i class="fas fa-trash"></i> Delete</button>
+              </td>
+            </tr>`;
+        }).join('');
+
+        const actionMap = {
+          details: 'showClientDetails',
+          delete: 'deleteClient'
+        };
+        Object.entries(actionMap).forEach(([action, method]) => {
+          document.querySelectorAll(`.client-${action}-btn`).forEach(btn => {
+            btn.onclick = () => this[method](parseInt(btn.dataset.id));
+          });
+        });
+      }
+
+      showClientDetails(id) {
+        const client = this.clients.find(c => c.id === id);
+        if (!client) return;
+
+        this.state.editingClientId = id;
+        document.getElementById('client-details-title').textContent = `${client.name} Details`;
+        const fields = ['name', 'contact', 'address', 'phone', 'notes', 'time', 'cost', 'hourly-rate', 'projects-count'];
+        fields.forEach(field => {
+          const el = document.getElementById(`client-details-${field}`);
+          if (field === 'time') el.textContent = this.formatTime(this.getTotalTime(client), true);
+          else if (field === 'cost') el.textContent = `$${this.formatCost(this.getTotalCost(client))}`;
+          else if (field === 'hourly-rate') el.textContent = this.calculateAverageHourlyRate(client);
+          else if (field === 'projects-count') el.textContent = (client.projects || []).length;
+          else el.textContent = client[field] || '';
+        });
+
+        this.showModal('client-details', 'client-modal-overlay');
+      }
+
+      saveClientDetails() {
+        const client = this.clients.find(c => c.id === this.state.editingClientId);
+        if (!client) return;
+
+        const data = {
+          name: document.getElementById('client-details-name').textContent.trim(),
+          contact: document.getElementById('client-details-contact').textContent.trim(),
+          address: document.getElementById('client-details-address').textContent.trim(),
+          phone: document.getElementById('client-details-phone').textContent.trim(),
+          notes: document.getElementById('client-details-notes').textContent.trim()
+        };
+        if (!data.name) return alert('Client name cannot be empty');
+
+        Object.assign(client, data);
+        this.saveClients();
+        this.hideClientDetails();
+        this.renderAll();
+      }
+
+      hideClientDetails() {
+        this.hideModal('client-details', 'client-modal-overlay');
+        this.state.editingClientId = null;
+      }
+
+      renderSelects() {
+        ['client-select', 'history-select'].forEach(id => {
+          const select = document.getElementById(id);
+          const value = select.value;
+          select.innerHTML = id === 'history-select' ? '<option value="">All Clients</option>' : '<option value="">Select Client</option>';
+          this.clients.forEach(client => select.innerHTML += `<option value="${client.id}">${client.name}</option>`);
+          select.value = value;
+        });
+      }
+
+      sortHistory(field) {
+        this.state.historySort.field = this.state.historySort.field === field ? field : field;
+        this.state.historySort.direction = this.state.historySort.field === field ? this.state.historySort.direction * -1 : 1;
+        this.renderHistory();
+      }
+
+      renderHistory() {
+        const clientId = document.getElementById('history-select').value;
+        const searchTerm = document.getElementById('history-search').value.toLowerCase();
+        const filterType = document.getElementById('history-filter').value;
+        const tbody = document.getElementById('history-list');
+        let projects = clientId ? this.clients.find(c => c.id === parseInt(clientId))?.projects?.map(p => ({ ...p, clientId: c.id })) || [] : 
+          this.clients.flatMap(c => (c.projects || []).map(p => ({ ...p, clientId: c.id })));
+
+        if (!projects.length) {
+          tbody.innerHTML = '<tr><td colspan="7">No projects recorded</td></tr>';
+          return;
+        }
+
+        projects = projects.filter(p => filterType === 'Batch' ? p.isBatch : !filterType || p.type === filterType)
+          .filter(p => (`${p.type}${p.isBatch ? ' (Batch)' : ''}${p.type === 'General Work' ? p.taskDesc : p.project || ''}`).toLowerCase().includes(searchTerm));
+
+        if (this.state.historySort.field) {
+          projects.sort((a, b) => {
+            const field = this.state.historySort.field;
+            const direction = this.state.historySort.direction;
+            const valueMap = {
+              type: p => `${p.type}${p.isBatch ? ' (Batch)' : ''}`,
+              project: p => p.type === 'General Work' ? p.taskDesc || '' : p.project || '',
+              date: p => p.startTime ? new Date(p.startTime).getTime() : 0,
+              time: p => p.duration || 0,
+              cost: p => p.cost || 0,
+              hourly: p => p.duration && p.cost ? p.cost / (p.duration / 3600) : 0
+            };
+            const aValue = valueMap[field](a);
+            const bValue = valueMap[field](b);
+            return direction * (aValue > bValue ? 1 : aValue < bValue ? -1 : 0);
+          });
+        }
+
+        tbody.innerHTML = projects.map((project, index) => {
+          const projectField = project.type === 'General Work' ? project.taskDesc : project.project;
+          const projectDisplay = project.type !== 'General Work' ? `<a href="${projectField.split(', ')[0]}" target="_blank">${projectField}</a>` : projectField;
+          const realIndex = this.clients.find(c => c.id === project.clientId).projects.findIndex(p => 
+            p.type === project.type && p.project === project.project && p.startTime === project.startTime);
+          return `
+            <tr>
+              <td>${project.type}${project.isBatch ? ' (Batch)' : ''}</td>
+              <td>${projectDisplay}</td>
+              <td>${project.startTime ? new Date(project.startTime).toLocaleDateString() : '-'}</td>
+              <td>${project.duration ? this.formatTime(project.duration) : '-'}</td>
+              <td>${project.cost ? `$${this.formatCost(project.cost)}` : '-'}</td>
+              <td>${project.duration && project.cost ? this.calculateHourlyRate(project.cost, project.duration) : '-'}</td>
+              <td>
+                <button class="button btn-primary btn-small edit-project-btn" data-client-id="${project.clientId}" data-index="${realIndex}"><i class="fas fa-edit"></i> Edit</button>
+                <button class="button btn-danger btn-small delete-project-btn" data-client-id="${project.clientId}" data-index="${realIndex}"><i class="fas fa-trash"></i> Delete</button>
+              </td>
+            </tr>`;
+        }).join('');
+
+        ['edit', 'delete'].forEach(action => {
+          document.querySelectorAll(`.${action}-project-btn`).forEach(btn => {
+            btn.onclick = () => this[`${action}Project`](parseInt(btn.dataset.clientId), parseInt(btn.dataset.index));
+          });
+        });
+      }
+
+      showClientForm() {
+        ['name', 'contact', 'address', 'phone', 'notes'].forEach(field => 
+          document.getElementById(`client-${field}`).value = '');
+        this.showModal('client-form', 'client-modal-overlay');
+      }
+
+      hideClientForm() {
+        this.hideModal('client-form', 'client-modal-overlay');
+      }
+
+      saveClient() {
+        const data = {
+          name: document.getElementById('client-name').value.trim(),
+          contact: document.getElementById('client-contact').value.trim(),
+          address: document.getElementById('client-address').value.trim(),
+          phone: document.getElementById('client-phone').value.trim(),
+          notes: document.getElementById('client-notes').value.trim()
+        };
+        if (!data.name) return alert('Please enter a client name');
+
+        this.clients.push({ id: Date.now(), projects: [], ...data });
+        this.saveClients();
+        this.hideClientForm();
+        this.renderAll();
+      }
+
+      deleteClient(id) {
+        if (confirm('Are you sure you want to delete this client and all associated data?')) {
+          this.clients = this.clients.filter(c => c.id !== id);
+          this.saveClients();
+          this.renderAll();
+        }
+      }
+
+      showProjectModal(costOnly = false) {
+        const clientId = parseInt(document.getElementById('client-select').value);
+        if (!clientId) return alert('Please select a client');
+        if (!costOnly && this.currentSession) return alert('A time tracking session is already active');
+
+        this.currentClientId = clientId;
+        this.costOnlyMode = costOnly;
+        this.showModal('project-modal', 'project-modal-overlay');
+        document.getElementById('modal-title').textContent = 'Add Project';
+        document.getElementById('project-type').value = 'Title & Thumbnail Design';
+        document.getElementById('batch-mode').checked = false;
+        ['project-url', 'single-cost', 'general-task-desc', 'general-cost'].forEach(id => 
+          document.getElementById(id).value = '');
+        document.getElementById('batch-project-container').innerHTML = `
+          <div class="batch-project-field">
+            <input type="url" class="batch-project-url" placeholder="e.g., https://youtube.com/watch?v=abc123">
+            <input type="number" class="batch-project-cost" placeholder="Cost ($)" step="0.01" min="0">
+            <button class="button btn-danger remove-project-btn"><i class="fas fa-trash"></i> Remove</button>
+          </div>`;
+        document.getElementById('start-session-btn').style.display = costOnly ? 'none' : '';
+        this.addRemoveProjectListeners();
+        this.toggleBatchMode(false);
+      }
+
+      showBatchProjectModal() {
+        const clientId = parseInt(document.getElementById('history-select').value);
+        if (!clientId) return alert('Please select a client');
+        this.currentClientId = clientId;
+        this.costOnlyMode = true;
+        this.showModal('project-modal', 'project-modal-overlay');
+        document.getElementById('modal-title').textContent = 'Add Batch Project';
+        document.getElementById('project-type').value = 'Title & Thumbnail Design';
+        document.getElementById('batch-mode').checked = true;
+        ['project-url', 'single-cost', 'general-task-desc', 'general-cost'].forEach(id => 
+          document.getElementById(id).value = '');
+        document.getElementById('batch-project-container').innerHTML = `
+          <div class="batch-project-field">
+            <input type="url" class="batch-project-url" placeholder="e.g., https://youtube.com/watch?v=abc123">
+            <input type="number" class="batch-project-cost" placeholder="Cost ($)" step="0.01" min="0">
+            <button class="button btn-danger remove-project-btn"><i class="fas fa-trash"></i> Remove</button>
+          </div>`;
+        document.getElementById('start-session-btn').style.display = 'none';
+        this.addRemoveProjectListeners();
+        this.toggleBatchMode(true);
+      }
+
+      hideProjectModal() {
+        this.hideModal('project-modal', 'project-modal-overlay');
+        if (!this.timerInterval) this.currentSession = null;
+        this.currentClientId = null;
+        this.costOnlyMode = false;
+      }
+
+      toggleBatchMode(isBatch) {
+        const els = {
+          single: document.getElementById('single-project'),
+          batch: document.getElementById('batch-projects'),
+          container: document.getElementById('batch-mode-container'),
+          general: document.getElementById('general-details'),
+          type: document.getElementById('project-type').value
+        };
+        if (els.single && els.batch && els.container && els.general) {
+          els.single.style.display = 'none';
+          els.batch.style.display = 'none';
+          els.container.style.display = 'none';
+          els.general.style.display = 'none';
+          if (els.type === 'General Work') els.general.style.display = 'block';
+          else {
+            els.container.style.display = 'block';
+            els.single.style.display = isBatch ? 'none' : 'block';
+            els.batch.style.display = isBatch ? 'block' : 'none';
+          }
+        }
+      }
+
+      toggleEditBatchMode(isBatch) {
+        const els = {
+          video: document.getElementById('edit-video-url'),
+          batch: document.getElementById('edit-batch-projects'),
+          general: document.getElementById('edit-general-details'),
+          container: document.getElementById('edit-batch-mode-container'),
+          type: document.getElementById('edit-project-type').value
+        };
+        if (els.video && els.batch && els.general && els.container) {
+          els.video.style.display = 'none';
+          els.batch.style.display = 'none';
+          els.general.style.display = 'none';
+          els.container.style.display = 'none';
+          if (els.type === 'General Work') els.general.style.display = 'block';
+          else {
+            els.container.style.display = 'block';
+            if (isBatch && !document.getElementById('edit-batch-project-container').children.length) {
+              const url = document.getElementById('edit-project-url').value;
+              const cost = document.getElementById('edit-cost').value;
+              document.getElementById('edit-batch-project-container').innerHTML = `
+                <div class="batch-project-field">
+                  <input type="url" class="batch-project-url" value="${url}" placeholder="e.g., https://youtube.com/watch?v=abc123">
+                  <input type="number" class="batch-project-cost" value="${cost}" placeholder="Cost ($)" step="0.01" min="0">
+                  <button class="button btn-danger remove-project-btn"><i class="fas fa-trash"></i> Remove</button>
+                </div>`;
+              this.addRemoveProjectListeners();
+            }
+            els.video.style.display = isBatch ? 'none' : 'block';
+            els.batch.style.display = isBatch ? 'block' : 'none';
+          }
+        }
+      }
+
+      addProjectField(containerId = 'batch-project-container') {
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.innerHTML += `
+            <div class="batch-project-field">
+              <input type="url" class="batch-project-url" placeholder="e.g., https://youtube.com/watch?v=abc${container.children.length + 1}">
+              <input type="number" class="batch-project-cost" placeholder="Cost ($)" step="0.01" min="0">
+              <button class="button btn-danger remove-project-btn"><i class="fas fa-trash"></i> Remove</button>
+            </div>`;
+          this.addRemoveProjectListeners();
+        }
+      }
+
+      addEditProjectField() {
+        this.addProjectField('edit-batch-project-container');
+      }
+
+      addRemoveProjectListeners() {
+        document.querySelectorAll('.remove-project-btn').forEach(btn => 
+          btn.onclick = e => {
+            const container = e.target.closest('#batch-project-container') || e.target.closest('#edit-batch-project-container');
+            if (container && container.children.length > 1) e.target.closest('.batch-project-field').remove();
+          });
+      }
+
+      toggleProjectDetails(projectType) {
+        this.toggleBatchMode(document.getElementById('batch-mode').checked);
+      }
+
+      toggleEditProjectDetails(projectType, isBatch = false) {
+        this.toggleEditBatchMode(isBatch);
+      }
+
+      startTimer() {
+        const client = this.clients.find(c => c.id === this.currentClientId);
+        if (!client) return this.hideProjectModal();
+
+        const projectType = document.getElementById('project-type').value;
+        const isBatch = document.getElementById('batch-mode').checked && projectType !== 'General Work';
+        let session;
+
+        if (isBatch) {
+          const batchProjects = Array.from(document.querySelectorAll('.batch-project-url')).map((input, i) => ({
+            url: input.value.trim() || 'No URL Provided',
+            cost: parseFloat(document.querySelectorAll('.batch-project-cost')[i].value) || 0
+          }));
+          session = {
+            clientId: this.currentClientId,
+            type: projectType,
+            project: batchProjects.map(p => p.url).join(', '),
+            cost: batchProjects.reduce((sum, p) => sum + p.cost, 0),
+            batchProjects,
+            isBatch: true
+          };
+        } else if (projectType === 'General Work') {
+          session = {
+            clientId: this.currentClientId,
+            type: projectType,
+            taskDesc: document.getElementById('general-task-desc').value.trim() || 'Untitled Task',
+            cost: parseFloat(document.getElementById('general-cost').value) || 0,
+            isBatch: false
+          };
+        } else {
+          session = {
+            clientId: this.currentClientId,
+            type: projectType,
+            project: document.getElementById('project-url').value.trim() || 'No URL Provided',
+            cost: parseFloat(document.getElementById('single-cost').value) || 0,
+            isBatch: false
+          };
+        }
+
+        Object.assign(session, { startTime: Date.now(), elapsedTime: 0, paused: false });
+        this.currentSession = session;
+        this.state.startTime = Date.now();
+        this.state.pausedDuration = 0;
+        this.state.paused = false;
+
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => {
+          if (this.currentSession && !this.state.paused) {
+            this.currentSession.elapsedTime = Math.floor((Date.now() - this.state.startTime + this.state.pausedDuration) / 1000);
+            this.updateProjectDisplay();
+          }
+        }, 1000);
+
+        this.hideProjectModal();
+        this.renderAll();
+      }
+
+      saveCostOnly() {
+        const client = this.clients.find(c => c.id === this.currentClientId);
+        if (!client) return this.hideProjectModal();
+
+        const projectType = document.getElementById('project-type').value;
+        const isBatch = document.getElementById('batch-mode').checked && projectType !== 'General Work';
+        if (!client.projects) client.projects = [];
+
+        if (isBatch) {
+          const batchProjects = Array.from(document.querySelectorAll('.batch-project-url')).map((input, i) => ({
+            url: input.value.trim() || 'No URL Provided',
+            cost: parseFloat(document.querySelectorAll('.batch-project-cost')[i].value) || 0
+          })).filter(p => p.cost > 0);
+          if (!batchProjects.length) return alert('Please enter at least one project with a valid cost');
+          client.projects.push({
+            type: projectType,
+            project: batchProjects.map(p => p.url).join(', '),
+            cost: batchProjects.reduce((sum, p) => sum + p.cost, 0),
+            batchProjects,
+            isBatch: true
+          });
+        } else if (projectType === 'General Work') {
+          const cost = parseFloat(document.getElementById('general-cost').value) || 0;
+          if (cost <= 0) return alert('Please enter a valid cost');
+          client.projects.push({
+            type: projectType,
+            taskDesc: document.getElementById('general-task-desc').value.trim() || 'Untitled Task',
+            cost,
+            isBatch: false
+          });
+        } else {
+          const cost = parseFloat(document.getElementById('single-cost').value) || 0;
+          if (cost <= 0) return alert('Please enter a valid cost');
+          client.projects.push({
+            type: projectType,
+            project: document.getElementById('project-url').value.trim() || 'No URL Provided',
+            cost,
+            isBatch: false
+          });
+        }
+
+        this.saveClients();
+        this.hideProjectModal();
+        this.renderAll();
+      }
+
+      togglePause() {
+        if (!this.currentSession) return alert('No active session');
+        this.state.paused = !this.state.paused;
+        const pauseBtn = document.getElementById('pause-btn');
+
+        if (this.state.paused) {
+          clearInterval(this.timerInterval);
+          this.timerInterval = null;
+          this.state.pausedDuration = this.currentSession.elapsedTime * 1000;
+          pauseBtn.innerHTML = '<i class="fas fa-play"></i> Resume';
+        } else {
+          this.state.startTime = Date.now();
+          this.timerInterval = setInterval(() => {
+            if (this.currentSession && !this.state.paused) {
+              this.currentSession.elapsedTime = Math.floor((Date.now() - this.state.startTime + this.state.pausedDuration) / 1000);
+              this.updateProjectDisplay();
+            }
+          }, 1000);
+          pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+        }
+        this.updateProjectDisplay();
+      }
+
+      stopTimer() {
+        if (!this.currentSession) return alert('No active session');
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+
+        const endTime = Date.now();
+        const duration = Math.floor((endTime - this.state.startTime + this.state.pausedDuration) / 1000);
+        const client = this.clients.find(c => c.id === this.currentSession.clientId);
+
+        if (client) {
+          if (!client.projects) client.projects = [];
+          Object.assign(this.currentSession, {
+            startTime: new Date(this.currentSession.startTime).toISOString(),
+            endTime: new Date(endTime).toISOString(),
+            duration
+          });
+          delete this.currentSession.elapsedTime;
+          delete this.currentSession.paused;
+          client.projects.push(this.currentSession);
+          this.saveClients();
+        }
+
+        this.currentSession = null;
+        this.state.paused = false;
+        this.state.pausedDuration = 0;
+        this.state.startTime = 0;
+        document.getElementById('pause-btn').innerHTML = '<i class="fas fa-pause"></i> Pause';
+        this.renderAll();
+      }
+
+      getTotalTime(client) {
+        return (client.projects || []).reduce((total, project) => total + (project.duration || 0), 0);
+      }
+
+      getTotalCost(client) {
+        return (client.projects || []).reduce((total, project) => total + (project.cost || 0), 0);
+      }
+
+      formatTime(seconds, short = false) {
+        seconds = Math.max(0, seconds);
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        return short ? `${h}h ${m}m` : `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      }
+
+      formatCost(cost) {
+        return cost.toFixed(2);
+      }
+
+      calculateHourlyRate(cost, duration) {
+        return cost && duration ? `$${(cost / (duration / 3600)).toFixed(2)}` : '-';
+      }
+
+      calculateAverageHourlyRate(client) {
+        const totalCost = this.getTotalCost(client);
+        const totalTime = this.getTotalTime(client);
+        return totalCost && totalTime ? `$${(totalCost / (totalTime / 3600)).toFixed(2)}` : '-';
+      }
+
+      updateProjectDisplay() {
+        const display = document.getElementById('project-display');
+        if (!this.currentSession) {
+          const clientId = parseInt(document.getElementById('client-select').value);
+          if (!clientId) return display.classList.add('hidden'), display.textContent = '';
+          const client = this.clients.find(c => c.id === clientId);
+          if (!client) return;
+          display.textContent = `Total Time for ${client.name}: ${this.formatTime(this.getTotalTime(client), true)} | Total Cost: $${this.formatCost(this.getTotalCost(client))}`;
+          display.classList.remove('hidden');
+          return;
+        }
+
+        const client = this.clients.find(c => c.id === this.currentSession.clientId);
+        if (!client) return;
+        const elapsed = this.currentSession.elapsedTime || 0;
+        const status = this.state.paused ? ' (Paused)' : '';
+        const projectCount = this.currentSession.isBatch ? this.currentSession.batchProjects.length : 1;
+        const projectType = this.currentSession.type;
+        const projects = this.currentSession.isBatch ? this.currentSession.project : (this.currentSession.project || this.currentSession.taskDesc);
+        display.textContent = `Tracking ${projectCount} ${projectType}${projectCount > 1 ? 's' : ''} for ${client.name}: ${projects} - Time: ${this.formatTime(elapsed)}${status} | Cost: $${this.formatCost(this.currentSession.cost)}`;
+        display.classList.remove('hidden');
+      }
+
+      exportCSV() {
+        const clientId = document.getElementById('history-select').value;
+        const projects = clientId ? this.clients.find(c => c.id === parseInt(clientId))?.projects || [] : 
+          this.clients.flatMap(c => c.projects || []);
+        if (!projects.length) return alert('No projects to export');
+
+        const csv = [
+          'Project Type,YouTube Video URL(s) / Task Description,Date,Time,Cost ($),Hourly Rate ($/hr)',
+          ...projects.map(p => [
+            `"${p.type}${p.isBatch ? ' (Batch)' : ''}"`,
+            `"${(p.type === 'General Work' ? p.taskDesc : p.project)?.replace(/"/g, '""') || ''}"`,
+            `"${p.startTime ? new Date(p.startTime).toLocaleDateString() : '-'}"`,
+            `"${p.duration ? this.formatTime(p.duration) : '-'}"`,
+            `"${p.cost ? this.formatCost(p.cost) : '-'}"`,
+            `"${p.duration && p.cost ? this.calculateHourlyRate(p.cost, p.duration).replace('$', '') : '-'}"`
+          ].join(','))
+        ].join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = clientId ? `${this.clients.find(c => c.id === parseInt(clientId)).name}_projects.csv` : 'all_clients_projects.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      editProject(clientId, index) {
+        const client = this.clients.find(c => c.id === clientId);
+        if (!client || !client.projects[index]) return;
+
+        this.state.editingProjectIndex = index;
+        this.currentClientId = clientId;
+        const project = client.projects[index];
+
+        document.getElementById('edit-project-type').value = project.type;
+        document.getElementById('edit-batch-mode').checked = project.isBatch;
+        if (project.type === 'General Work') {
+          document.getElementById('edit-general-task-desc').value = project.taskDesc || '';
+          document.getElementById('edit-general-cost').value = project.cost || '';
+        } else if (project.isBatch && project.batchProjects) {
+          document.getElementById('edit-batch-project-container').innerHTML = project.batchProjects.map(p => `
+            <div class="batch-project-field">
+              <input type="url" class="batch-project-url" value="${p.url}" placeholder="e.g., https://youtube.com/watch?v=abc123">
+              <input type="number" class="batch-project-cost" value="${p.cost}" placeholder="Cost ($)" step="0.01" min="0">
+              <button class="button btn-danger remove-project-btn"><i class="fas fa-trash"></i> Remove</button>
+            </div>`).join('');
+          this.addRemoveProjectListeners();
+        } else {
+          document.getElementById('edit-project-url').value = project.project || '';
+          document.getElementById('edit-cost').value = project.cost || '';
+        }
+        document.getElementById('edit-start-time').value = project.startTime ? new Date(project.startTime).toISOString().slice(0, 16) : '';
+        document.getElementById('edit-end-time').value = project.endTime ? new Date(project.endTime).toISOString().slice(0, 16) : '';
+
+        this.toggleEditProjectDetails(project.type, project.isBatch);
+        this.showModal('edit-modal', 'edit-modal-overlay');
+      }
+
+      deleteProject(clientId, index) {
+        const client = this.clients.find(c => c.id === clientId);
+        if (!client || !client.projects[index]) return;
+        if (confirm('Are you sure you want to delete this project? This cannot be undone.')) {
+          client.projects.splice(index, 1);
+          this.saveClients();
+          this.renderAll();
+        }
+      }
+
+      saveEditedProject() {
+        const client = this.clients.find(c => c.id === this.currentClientId);
+        if (!client || this.state.editingProjectIndex === null) return;
+
+        const project = client.projects[this.state.editingProjectIndex];
+        const projectType = document.getElementById('edit-project-type').value;
+        const startTime = document.getElementById('edit-start-time').value ? new Date(document.getElementById('edit-start-time').value).getTime() : null;
+        const endTime = document.getElementById('edit-end-time').value ? new Date(document.getElementById('edit-end-time').value).getTime() : null;
+        const duration = startTime && endTime ? Math.floor((endTime - startTime) / 1000) : project.duration;
+        const isBatch = document.getElementById('edit-batch-mode').checked && projectType !== 'General Work';
+
+        Object.assign(project, {
+          type: projectType,
+          startTime: startTime ? new Date(startTime).toISOString() : null,
+          endTime: endTime ? new Date(endTime).toISOString() : null,
+          duration: duration > 0 ? duration : null
+        });
+
+        if (projectType === 'General Work') {
+          project.taskDesc = document.getElementById('edit-general-task-desc').value.trim() || 'Untitled Task';
+          project.cost = parseFloat(document.getElementById('edit-general-cost').value) || 0;
+          delete project.project;
+          delete project.batchProjects;
+          project.isBatch = false;
+        } else if (isBatch) {
+          const batchProjects = Array.from(document.querySelectorAll('#edit-batch-project-container .batch-project-url')).map((input, i) => ({
+            url: input.value.trim() || 'No URL Provided',
+            cost: parseFloat(document.querySelectorAll('#edit-batch-project-container .batch-project-cost')[i].value) || 0
+          }));
+          project.project = batchProjects.map(p => p.url).join(', ');
+          project.cost = batchProjects.reduce((sum, p) => sum + p.cost, 0);
+          project.batchProjects = batchProjects;
+          project.isBatch = true;
+          delete project.taskDesc;
+        } else {
+          project.project = document.getElementById('edit-project-url').value.trim() || 'No URL Provided';
+          project.cost = parseFloat(document.getElementById('edit-cost').value) || 0;
+          delete project.batchProjects;
+          project.isBatch = false;
+          delete project.taskDesc;
+        }
+
+        this.saveClients();
+        this.hideEditModal();
+        this.renderAll();
+      }
+
+      hideEditModal() {
+        this.hideModal('edit-modal', 'edit-modal-overlay');
+        this.state.editingProjectIndex = null;
+        this.currentClientId = null;
+      }
+
+      clearHistory() {
+        const clientId = document.getElementById('history-select').value;
+        if (!confirm('Are you sure you want to clear all project history? This cannot be undone.')) return;
+        if (clientId) this.clients.find(c => c.id === parseInt(clientId)).projects = [];
+        else this.clients.forEach(c => c.projects = []);
+        this.saveClients();
+        this.renderAll();
+      }
+
+      toggleDarkMode() {
+        this.state.darkMode = !this.state.darkMode;
+        localStorage.setItem('darkMode', this.state.darkMode);
+        this.applyDarkMode();
+        const toggle = document.getElementById('mode-toggle');
+        const icon = document.querySelector('.mode-toggle .icon');
+        if (this.state.darkMode) {
+          toggle.checked = true;
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+        } else {
+          toggle.checked = false;
+          icon.classList.remove('fa-sun');
+          icon.classList.add('fa-moon');
+        }
+      }
+
+      applyDarkMode() {
+        document.body.classList.toggle('light-mode', !this.state.darkMode);
+      }
+    }
+
+    new ProjectManager();
+  </script>
+</body>
+</html>
