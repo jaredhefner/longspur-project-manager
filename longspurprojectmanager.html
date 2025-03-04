@@ -422,6 +422,21 @@
       background: #F7FAFC;
       border: 1px solid #2B6CB0;
     }
+    /* New styles for monthly totals */
+    #monthly-totals {
+      margin-top: var(--spacing-8);
+      padding: var(--spacing-5);
+      background: rgba(45, 55, 72, 0.9);
+      border-radius: var(--spacing-3);
+      color: var(--color-primary);
+      font-weight: 600;
+      text-align: center;
+      box-shadow: var(--shadow-1);
+    }
+    body.light-mode #monthly-totals {
+      background: rgba(255, 255, 255, 0.9);
+      color: #2B6CB0;
+    }
   </style>
 </head>
 <body>
@@ -623,9 +638,14 @@
         <option value="General Work">General Work</option>
         <option value="Batch">Batch Only</option>
       </select>
+      <!-- Added Month/Year Filter -->
+      <select id="month-year-filter"><option value="">All Months</option></select>
       <button id="export-btn" class="button btn-primary"><i class="fas fa-file-export"></i> Export CSV</button>
       <button id="add-batch-btn" class="button btn-success"><i class="fas fa-plus"></i> Add Batch Project</button>
       <button id="clear-history-btn" class="button btn-danger"><i class="fas fa-trash"></i> Clear All History</button>
+      <button id="export-json-btn" class="button btn-primary"><i class="fas fa-download"></i> Export JSON</button>
+      <input type="file" id="import-json" accept=".json" style="display: none;">
+      <button id="import-json-btn" class="button btn-success"><i class="fas fa-upload"></i> Import JSON</button>
     </div>
     <table id="history-table">
       <thead>
@@ -641,6 +661,8 @@
       </thead>
       <tbody id="history-list"></tbody>
     </table>
+    <!-- Added Monthly Totals Display -->
+    <div id="monthly-totals" class="hidden"></div>
   </div>
 
   <script>
@@ -691,6 +713,7 @@
           ['search-clients', 'input', e => this.renderClients(e.target.value)],
           ['history-search', 'input', () => this.renderHistory()],
           ['history-filter', 'change', () => this.renderHistory()],
+          ['month-year-filter', 'change', () => this.renderHistory()], // Added listener for month/year filter
           ['project-type', 'change', e => this.toggleProjectDetails(e.target.value)],
           ['edit-project-type', 'change', e => this.toggleEditProjectDetails(e.target.value)],
           ['batch-mode', 'change', e => this.toggleBatchMode(e.target.checked)],
@@ -701,7 +724,10 @@
           ['cancel-edit-btn', 'click', () => this.hideEditModal()],
           ['mode-toggle', 'change', () => this.toggleDarkMode()],
           ['close-client-details', 'click', () => this.hideClientDetails()],
-          ['save-client-details', 'click', () => this.saveClientDetails()]
+          ['save-client-details', 'click', () => this.saveClientDetails()],
+          ['export-json-btn', 'click', () => this.exportJSON()],
+          ['import-json-btn', 'click', () => document.getElementById('import-json').click()],
+          ['import-json', 'change', (e) => this.importJSON(e)]
         ];
         events.forEach(([id, event, handler]) => {
           const el = document.getElementById(id);
@@ -713,6 +739,35 @@
         document.querySelectorAll('#client-table th[data-sort]').forEach(th => 
           th.addEventListener('click', () => this.sortClients(th.dataset.sort))
         );
+      }
+
+      exportJSON() {
+        const data = JSON.stringify(this.clients, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'longspur_projects.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      importJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (!confirm('Importing will overwrite existing data. Proceed?')) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            this.clients = JSON.parse(e.target.result);
+            this.saveClients();
+            this.renderAll();
+            alert('Data imported successfully!');
+          } catch (err) {
+            alert('Error: Invalid JSON file');
+          }
+        };
+        reader.readAsText(file);
       }
 
       showModal(modalId, overlayId) {
@@ -853,6 +908,39 @@
           this.clients.forEach(client => select.innerHTML += `<option value="${client.id}">${client.name}</option>`);
           select.value = value;
         });
+        this.renderMonthYearFilter(); // Added to populate month/year dropdown
+      }
+
+      // New method to populate month/year filter
+      renderMonthYearFilter() {
+        const select = document.getElementById('month-year-filter');
+        const value = select.value;
+        const months = [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        const allProjects = this.clients.flatMap(c => (c.projects || []).map(p => ({ ...p, clientId: c.id })));
+        const monthYears = new Set();
+
+        allProjects.forEach(project => {
+          if (project.startTime) {
+            const date = new Date(project.startTime);
+            const monthYear = `${months[date.getMonth()]} ${date.getFullYear()}`;
+            monthYears.add(monthYear);
+          }
+        });
+
+        select.innerHTML = '<option value="">All Months</option>';
+        Array.from(monthYears).sort((a, b) => {
+          const [monthA, yearA] = a.split(' ');
+          const [monthB, yearB] = b.split(' ');
+          const dateA = new Date(`${monthA} 1, ${yearA}`);
+          const dateB = new Date(`${monthB} 1, ${yearB}`);
+          return dateB - dateA; // Sort descending (newest first)
+        }).forEach(monthYear => {
+          select.innerHTML += `<option value="${monthYear}">${monthYear}</option>`;
+        });
+        select.value = value || ''; // Restore previous selection or default to "All Months"
       }
 
       sortHistory(field) {
@@ -865,18 +953,33 @@
         const clientId = document.getElementById('history-select').value;
         const searchTerm = document.getElementById('history-search').value.toLowerCase();
         const filterType = document.getElementById('history-filter').value;
+        const monthYearFilter = document.getElementById('month-year-filter').value;
         const tbody = document.getElementById('history-list');
         let projects = clientId ? this.clients.find(c => c.id === parseInt(clientId))?.projects?.map(p => ({ ...p, clientId: c.id })) || [] : 
           this.clients.flatMap(c => (c.projects || []).map(p => ({ ...p, clientId: c.id })));
 
         if (!projects.length) {
           tbody.innerHTML = '<tr><td colspan="7">No projects recorded</td></tr>';
+          this.updateMonthlyTotals([]);
           return;
         }
 
+        // Apply filters
         projects = projects.filter(p => filterType === 'Batch' ? p.isBatch : !filterType || p.type === filterType)
           .filter(p => (`${p.type}${p.isBatch ? ' (Batch)' : ''}${p.type === 'General Work' ? p.taskDesc : p.project || ''}`).toLowerCase().includes(searchTerm));
 
+        // Filter by month/year if selected
+        if (monthYearFilter) {
+          const [month, year] = monthYearFilter.split(' ');
+          const monthIndex = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].indexOf(month);
+          projects = projects.filter(p => {
+            if (!p.startTime) return false;
+            const date = new Date(p.startTime);
+            return date.getMonth() === monthIndex && date.getFullYear() === parseInt(year);
+          });
+        }
+
+        // Sort projects
         if (this.state.historySort.field) {
           projects.sort((a, b) => {
             const field = this.state.historySort.field;
@@ -895,6 +998,7 @@
           });
         }
 
+        // Render table
         tbody.innerHTML = projects.map((project, index) => {
           const projectField = project.type === 'General Work' ? project.taskDesc : project.project;
           const projectDisplay = project.type !== 'General Work' ? `<a href="${projectField.split(', ')[0]}" target="_blank">${projectField}</a>` : projectField;
@@ -920,6 +1024,26 @@
             btn.onclick = () => this[`${action}Project`](parseInt(btn.dataset.clientId), parseInt(btn.dataset.index));
           });
         });
+
+        // Update monthly totals
+        this.updateMonthlyTotals(projects, monthYearFilter);
+      }
+
+      // New method to update monthly totals display
+      updateMonthlyTotals(projects, monthYearFilter) {
+        const totalsDiv = document.getElementById('monthly-totals');
+        if (!projects.length || !monthYearFilter) {
+          totalsDiv.classList.add('hidden');
+          totalsDiv.textContent = '';
+          return;
+        }
+
+        const totalTime = projects.reduce((sum, p) => sum + (p.duration || 0), 0);
+        const totalCost = projects.reduce((sum, p) => sum + (p.cost || 0), 0);
+        const avgHourlyRate = totalTime && totalCost ? (totalCost / (totalTime / 3600)).toFixed(2) : 'N/A';
+
+        totalsDiv.textContent = `Totals for ${monthYearFilter}: Time: ${this.formatTime(totalTime, true)} | Cost: $${this.formatCost(totalCost)} | Avg Hourly Rate: $${avgHourlyRate}`;
+        totalsDiv.classList.remove('hidden');
       }
 
       showClientForm() {
