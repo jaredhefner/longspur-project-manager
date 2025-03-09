@@ -638,7 +638,6 @@
         <option value="General Work">General Work</option>
         <option value="Batch">Batch Only</option>
       </select>
-      <!-- Added Month/Year Filter -->
       <select id="month-year-filter"><option value="">All Months</option></select>
       <button id="export-btn" class="button btn-primary"><i class="fas fa-file-export"></i> Export CSV</button>
       <button id="add-batch-btn" class="button btn-success"><i class="fas fa-plus"></i> Add Batch Project</button>
@@ -661,7 +660,6 @@
       </thead>
       <tbody id="history-list"></tbody>
     </table>
-    <!-- Added Monthly Totals Display -->
     <div id="monthly-totals" class="hidden"></div>
   </div>
 
@@ -713,7 +711,7 @@
           ['search-clients', 'input', e => this.renderClients(e.target.value)],
           ['history-search', 'input', () => this.renderHistory()],
           ['history-filter', 'change', () => this.renderHistory()],
-          ['month-year-filter', 'change', () => this.renderHistory()], // Added listener for month/year filter
+          ['month-year-filter', 'change', () => this.renderHistory()],
           ['project-type', 'change', e => this.toggleProjectDetails(e.target.value)],
           ['edit-project-type', 'change', e => this.toggleEditProjectDetails(e.target.value)],
           ['batch-mode', 'change', e => this.toggleBatchMode(e.target.checked)],
@@ -908,10 +906,9 @@
           this.clients.forEach(client => select.innerHTML += `<option value="${client.id}">${client.name}</option>`);
           select.value = value;
         });
-        this.renderMonthYearFilter(); // Added to populate month/year dropdown
+        this.renderMonthYearFilter();
       }
 
-      // New method to populate month/year filter
       renderMonthYearFilter() {
         const select = document.getElementById('month-year-filter');
         const value = select.value;
@@ -936,11 +933,11 @@
           const [monthB, yearB] = b.split(' ');
           const dateA = new Date(`${monthA} 1, ${yearA}`);
           const dateB = new Date(`${monthB} 1, ${yearB}`);
-          return dateB - dateA; // Sort descending (newest first)
+          return dateB - dateA;
         }).forEach(monthYear => {
           select.innerHTML += `<option value="${monthYear}">${monthYear}</option>`;
         });
-        select.value = value || ''; // Restore previous selection or default to "All Months"
+        select.value = value || '';
       }
 
       sortHistory(field) {
@@ -955,8 +952,15 @@
         const filterType = document.getElementById('history-filter').value;
         const monthYearFilter = document.getElementById('month-year-filter').value;
         const tbody = document.getElementById('history-list');
-        let projects = clientId ? this.clients.find(c => c.id === parseInt(clientId))?.projects?.map(p => ({ ...p, clientId: c.id })) || [] : 
-          this.clients.flatMap(c => (c.projects || []).map(p => ({ ...p, clientId: c.id })));
+        let projects = [];
+
+        // Get projects based on client selection with safety check
+        if (clientId) {
+          const selectedClient = this.clients.find(c => c.id === parseInt(clientId));
+          projects = selectedClient ? (selectedClient.projects || []).map(p => ({ ...p, clientId: selectedClient.id })) : [];
+        } else {
+          projects = this.clients.flatMap(c => (c.projects || []).map(p => ({ ...p, clientId: c.id })));
+        }
 
         if (!projects.length) {
           tbody.innerHTML = '<tr><td colspan="7">No projects recorded</td></tr>';
@@ -998,12 +1002,19 @@
           });
         }
 
-        // Render table
-        tbody.innerHTML = projects.map((project, index) => {
+        // Render table with safety checks
+        tbody.innerHTML = projects.map((project) => {
+          const client = this.clients.find(c => c.id === project.clientId);
+          if (!client) return ''; // Skip if client not found
+          const realIndex = client.projects.findIndex(p => 
+            p.type === project.type && 
+            p.project === project.project && 
+            p.startTime === project.startTime
+          );
+          if (realIndex === -1) return ''; // Skip if project not found
+
           const projectField = project.type === 'General Work' ? project.taskDesc : project.project;
           const projectDisplay = project.type !== 'General Work' ? `<a href="${projectField.split(', ')[0]}" target="_blank">${projectField}</a>` : projectField;
-          const realIndex = this.clients.find(c => c.id === project.clientId).projects.findIndex(p => 
-            p.type === project.type && p.project === project.project && p.startTime === project.startTime);
           return `
             <tr>
               <td>${project.type}${project.isBatch ? ' (Batch)' : ''}</td>
@@ -1019,6 +1030,7 @@
             </tr>`;
         }).join('');
 
+        // Attach event listeners
         ['edit', 'delete'].forEach(action => {
           document.querySelectorAll(`.${action}-project-btn`).forEach(btn => {
             btn.onclick = () => this[`${action}Project`](parseInt(btn.dataset.clientId), parseInt(btn.dataset.index));
@@ -1029,7 +1041,6 @@
         this.updateMonthlyTotals(projects, monthYearFilter);
       }
 
-      // New method to update monthly totals display
       updateMonthlyTotals(projects, monthYearFilter) {
         const totalsDiv = document.getElementById('monthly-totals');
         if (!projects.length || !monthYearFilter) {
